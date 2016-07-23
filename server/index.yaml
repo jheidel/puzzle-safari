@@ -1,0 +1,6 @@
+indexes:
+- kind: ActionItem
+  ancestor: yes
+  properties:
+  - name: time_created
+    direction: desc

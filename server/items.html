@@ -1,0 +1,59 @@
+  {% set counter = 0 %}
+  {% for ai in action_items %}
+  <div class="row {{ 'row-complete' if ai.completed else 'row-incomplete' }}">
+    <table><tr><td>
+    <div class="clue-building">Building<p>{{ ai.building }}</p>
+    
+    
+      <form action="/complete" id="cfr-{{ counter }}" method="post">
+        <input type="hidden" name="action_id" value="{{ ai.key.urlsafe() }}"></input>
+        <input type="hidden" name="completernote" id="cfn-{{ counter }}" value=""></input>
+        <input type="button" onclick="getNote({{ counter }})" class="btn btn-small" value="Done"></input>
+      </form>
+    
+    </div>
+        </td><td>
+    <div class="clue-desc">
+      Description:
+      <blockquote>{{ ai.creator_note }}</blockquote>
+
+      Created by
+      {% if ai.creator %}
+        <b>{{ ai.creator.email }}
+          {% if user and user.user_id() == ai.creator.identity %}
+            (You)
+          {% endif %}
+        </b>
+      {% else %}
+      <i>Anonymous</i>
+      {% endif %}
+      at
+      {{ ai.time_created|pst }}
+      <br/>
+
+      {% if ai.completed %}
+
+      Completed by
+      {% if ai.completer %}
+        <b>{{ ai.completer.email }}
+          {% if user and user.user_id() == ai.completer.identity %}
+            (You)
+          {% endif %}
+        </b>
+      {% else %}
+      <i>Anonymous</i>
+      {% endif %}
+      at
+      {{ ai.time_completed|pst }}
+      <br/>
+
+      {% if ai.completer_note %}
+      <blockquote>{{ ai.completer_note }}</blockquote>
+      {% endif %}
+      {% endif %}
+
+    </div>
+        </td></tr></table>
+  </div>
+  {% set counter = counter + 1 %}
+  {% endfor %}

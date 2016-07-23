@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <style type="text/css">
+      body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: #f5f5f5;
+      }
+      blockquote {
+        margin-bottom: 10px;
+        border-left-color: #bbb;
+      }
+      form {
+        margin-top: 10px;
+      }
+      .form-signin input[type="text"] {
+        font-size: 16px;
+        height: auto;
+        margin-bottom: 15px;
+        padding: 7px 9px;
+      }
+      .row {
+        margin-left: 0px;
+        margin-bottom: 10px;
+
+        border-radius: 10px;
+        border: 2px solid #73AD21;
+        padding: 5px; 
+
+      }
+
+      .row-incomplete {
+        border: 2px solid #C40B0B;
+      }
+      .row-complete {
+        border: 2px solid #73AD21;
+      }
+
+      .clue-building {
+        margin-right: 10px;
+        padding: 5px;
+        text-align: center;
+        vertical-align:middle;
+      }
+      .clue-building p {
+        font-size: 30px;
+        padding: 5px;
+      }
+
+      .clue-desc {
+
+
+      }
+    </style>
+    <script language="javascript">
+      function getNote(id) {
+        var note = prompt("Yay you found it! Enter a note to be recorded (optional)", "");
+        if (note != null) {
+          document.getElementById("cfn-" + id).value = note;
+          document.getElementById("cfr-" + id).submit();
+        }
+      }      
+
+
+      function reloadItems() {
+        $.get( "/items", function( data ) {
+          $( "#ai-container" ).html(data);
+        });
+      }
+
+      $( document ).ready(function() {
+        reloadItems();
+      });
+
+      var lasthash = '{{ hash }}';
+
+      (function poll() {
+        $.ajax({
+        url: "/ajax",
+        type: "GET",
+        success: function(data) {
+          console.log("poll");
+          if (data != lasthash) {
+            console.log("Received new data, hash " + data);
+            reloadItems();
+            lasthash = data;
+          }
+        },
+        dataType: "html",
+        complete: setTimeout(function() {poll()}, 5000),
+        timeout: 2000
+        })
+      })();
+
+    </script>
+
+    <!-- Mobile first settings for bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Jeff's Puzzle Coordination Engine</a>
+          <div class="nav-collapse collapse pull-right">
+            <a href="{{ url|safe }}" class="btn">{{ url_linktext }}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <h3>All Clues</h3>
+      <div class="container-fluid" id="ai-container">
+        <i>Loading...</i>
+      </div>
+
+      <h3>Progress</h3>
+      <div class="container-fluid">
+        Total: {{ stats.total }}<br/>
+        Complete: {{ stats.complete }}<br/>
+        Remaining: {{ stats.incomplete }}<br/>
+      </div>
+
+
+      <h3>New Clue</h3>
+      <div class="container-fluid">
+
+        <form action="/create" method="post">
+          <div class="form-group">
+            <label for="building">Building</label>
+            <input class="form-control input-lg" id="building" name="building" type="text">
+          </div>
+          <div class="form-group">
+            <label for="note">Description</label>
+            <textarea name="note" id="note" class="input-block-level" rows="3"></textarea>
+          </div>
+          <div><input type="submit" class="btn btn-large btn-primary" value="Create Action Item"></div>
+        </form>
+
+        <hr>
+
+        <a href="{{ url|safe }}">{{ url_linktext }}</a>
+
+        <br/>
+        Version 0.1
+
+      </div>
+    </div>
+
+  </body>
+</html>
+{% endautoescape %}
